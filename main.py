@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow
 # FIXME: probably fix DownloadEngine.py code at some point.
 if __name__ == '__main__':
     def start_logging(path):
+        global app_data_folder
         try:
             sys.stdout = open(path, 'w', encoding='UTF-8')
             sys.stderr = open(path, 'a', encoding='UTF-8')
