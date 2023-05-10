@@ -4,7 +4,6 @@ from PyQt5 import QtCore, QtWidgets
 
 
 class ModifiedUi(Ui_MainWindow):
-    # TODO fix progress bar position in ui
     def __init__(self, MainWindow):
         self.setupUi(MainWindow)
         self.dialog = QtWidgets.QFileDialog()
@@ -42,12 +41,14 @@ class ModifiedUi(Ui_MainWindow):
         self.link_entry.setText("")
 
     def set_progressbar_value(self, value):
-        self.progress_bar.setValue(value)
-        # TODO fix overflow error
+        if value >= 100:
+            self.progress_bar.setValue(100)
+        else:
+            self.progress_bar.setValue(value)
 
     def set_no_active_downloads_label(self):
         self.remaining_download_links_label.setText(
-            "Descargas: no hay descargas activas"
+            "Descargas: no active downloads"
             )
 
     def set_active_downloads_label(self, completed, total):
@@ -72,3 +73,8 @@ class ModifiedUi(Ui_MainWindow):
             "Info",
             "Too many tries reached. Exiting program."
             )
+
+    def set_selected_format_label(self, format):
+        self.active_format_label.setText(
+            f"Active download format: {format}"
+        )

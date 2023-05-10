@@ -13,15 +13,15 @@ class EasyYTDLEngine(YoutubeDL, Thread):
     def __init__(self, MainWindow):
         super().__init__()
 
-        self.ui_object = ModifiedUi(MainWindow)
         self.format_type = 'mp4'
         self.main_window = MainWindow
         self.download_path = ''
-        self.ydl_opts = None
-        self.ydl_opts_mp4()
         self.input_url = []
+        self.ydl_opts = None
         self.old_video_id = None
         self._finished_downloads = 0
+        self.ui_object = ModifiedUi(MainWindow)
+        self.ydl_opts_mp4()
         self.read_download_path()
 
     def check_if_empty_download_path(self, max_attempts=5):
@@ -64,6 +64,7 @@ class EasyYTDLEngine(YoutubeDL, Thread):
         self.ui_object.enlarge_progress_bar()
         with YoutubeDL(self.ydl_opts) as ydl:
             ydl.download(self.input_url)
+            self.ui_object.set_progressbar_value(0)
         self.input_url = []
         self.ui_object.shrink_progress_bar()
         self.update_downloads_label()
@@ -75,6 +76,7 @@ class EasyYTDLEngine(YoutubeDL, Thread):
 
     def append_new_links(self):
         """Method that inputs the current link in the entry."""
+        list(self.input_url)
         self.input_url.append(self.ui_object.get_entry_text())
         self.ui_object.clear_entry_text()
         self.update_downloads_label()
@@ -92,8 +94,9 @@ class EasyYTDLEngine(YoutubeDL, Thread):
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
             }],
-            'outtmpl': f'{self.download_path}/%(title)s.%(ext)s'
+            'outtmpl': f'{self.download_path}/MP3/%(title)s.%(ext)s'
         }
+        self.update_download_format_label()
 
     def ydl_opts_mp4(self):
         """
@@ -104,8 +107,9 @@ class EasyYTDLEngine(YoutubeDL, Thread):
         self.ydl_opts = {
             'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best',
             'progress_hooks': [self.update_progress],
-            'outtmpl': f'{self.download_path}/%(title)s.%(ext)s'
+            'outtmpl': f'{self.download_path}/MP4/%(title)s.%(ext)s'
         }
+        self.update_download_format_label()
 
     def ydl_opts_webm(self):
         """
@@ -114,9 +118,10 @@ class EasyYTDLEngine(YoutubeDL, Thread):
         if self.format_type != 'webm':
             self.format_type = 'webm'
         self.ydl_opts = {
-            'outtmpl': f'{self.download_path}/%(title)s.%(ext)s',
+            'outtmpl': f'{self.download_path}/WEBM/%(title)s.%(ext)s',
             'progress_hooks': [self.update_progress],
         }
+        self.update_download_format_label()
 
     def empty_list(self):
         """Method that clears the input_url attribute"""
@@ -140,12 +145,7 @@ class EasyYTDLEngine(YoutubeDL, Thread):
             descargado, total = video.get(
                 'downloaded_bytes', 0), video.get('total_bytes_estimate', 1)
             porcentaje = int((descargado / total) * 100)
-
-            if porcentaje >= 101:
-                self.ui_object.set_progressbar_value(porcentaje - 1)
-            else:
-                self.ui_object.set_progressbar_value(porcentaje)
-
+            self.ui_object.set_progressbar_value(porcentaje)
             self.video_id_checker(video)
             self.update_downloads_label()
         except KeyError:
@@ -189,3 +189,6 @@ class EasyYTDLEngine(YoutubeDL, Thread):
     def open_format_window(self):
         """Method that opens the format window"""
         self.ui_object.open_ui_format_window()
+
+    def update_download_format_label(self):
+        self.ui_object.set_selected_format_label(self.format_type)

@@ -3,7 +3,7 @@ import os
 from download_engine import EasyYTDLEngine
 from PyQt5.QtWidgets import QApplication, QMainWindow
 
-# TODO probably fix DownloadEngine.py code at some point.
+# FIXME: probably fix DownloadEngine.py code at some point.
 if __name__ == '__main__':
     def start_logging(path):
         try:
