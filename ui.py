@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'YTui_MainWindow.ui'
+# Form implementation generated from reading ui file 'ui_files/YTui_MainWindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.9
 #
@@ -27,7 +27,7 @@ class Ui_MainWindow(object):
         font.setFamily("Fixedsys")
         MainWindow.setFont(font)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("Asset_1.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("ui_files\\../icon.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         MainWindow.setWindowOpacity(1.0)
         MainWindow.setLayoutDirection(QtCore.Qt.LeftToRight)
@@ -84,7 +84,7 @@ class Ui_MainWindow(object):
         self.empty_list.setGeometry(QtCore.QRect(330, 170, 191, 23))
         self.empty_list.setObjectName("empty_list")
         self.get_specific_format_button = QtWidgets.QPushButton(self.centralwidget)
-        self.get_specific_format_button.setGeometry(QtCore.QRect(220, 200, 201, 23))
+        self.get_specific_format_button.setGeometry(QtCore.QRect(500, 80, 131, 21))
         self.get_specific_format_button.setObjectName("get_specific_format_button")
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(120, 10, 381, 16))

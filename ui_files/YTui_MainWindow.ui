@@ -41,7 +41,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>Asset_1.ico</normaloff>Asset_1.ico</iconset>
+    <normaloff>../icon.ico</normaloff>../icon.ico</iconset>
   </property>
   <property name="windowOpacity">
    <double>1.000000000000000</double>
@@ -198,10 +198,10 @@
    <widget class="QPushButton" name="get_specific_format_button">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>200</y>
-      <width>201</width>
-      <height>23</height>
+      <x>500</x>
+      <y>80</y>
+      <width>131</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">

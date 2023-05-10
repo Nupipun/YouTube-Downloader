@@ -46,17 +46,29 @@ class ModifiedUi(Ui_MainWindow):
         # TODO fix overflow error
 
     def set_no_active_downloads_label(self):
-        self.remaining_download_links_label.setText(f"Descargas: no hay descargas activas")
+        self.remaining_download_links_label.setText(
+            "Descargas: no hay descargas activas"
+            )
 
     def set_active_downloads_label(self, completed, total):
-        self.remaining_download_links_label.setText(f"Descargas: {completed}/{total}")
+        self.remaining_download_links_label.setText(
+            f"Descargas: {completed}/{total}"
+            )
 
     def ask_for_directory(self):
         path = self.dialog.getExistingDirectory()
         return path
 
     def download_not_found_msg(self, MainWindow):
-        self.msg.about(MainWindow, "Info", "Download path was not found. Please select a new one.")
+        self.msg.about(
+            MainWindow,
+            "Info",
+            "Download path was not found. Please select a new one."
+            )
 
     def too_many_tries_msg(self, MainWindow):
-        self.msg.about(MainWindow, "Info", "Too many tries reached. Exiting program.")
+        self.msg.about(
+            MainWindow,
+            "Info",
+            "Too many tries reached. Exiting program."
+            )

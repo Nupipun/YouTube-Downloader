@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>243</width>
-    <height>93</height>
+    <height>88</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -27,7 +27,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>icon.ico</normaloff>icon.ico</iconset>
+    <normaloff>../icon.ico</normaloff>../icon.ico</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QRadioButton" name="mp3Button">

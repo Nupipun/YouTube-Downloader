@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'YTui_formatWindow.ui'
+# Form implementation generated from reading ui file 'ui_files/YTui_formatWindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.9
 #
@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_formatWindow(object):
     def setupUi(self, formatWindow):
         formatWindow.setObjectName("formatWindow")
-        formatWindow.resize(243, 93)
+        formatWindow.resize(243, 88)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -22,7 +22,7 @@ class Ui_formatWindow(object):
         formatWindow.setSizePolicy(sizePolicy)
         formatWindow.setMaximumSize(QtCore.QSize(243, 93))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("icon.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("ui_files\\../icon.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         formatWindow.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(formatWindow)
         self.centralwidget.setObjectName("centralwidget")
