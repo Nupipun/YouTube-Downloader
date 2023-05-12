@@ -1,15 +1,14 @@
-"""Modulo para leer y guardar archivos json"""
 import json
 import os
+import constants as cons
 from threading import Thread
 from yt_dlp import YoutubeDL
-from appdirs import user_data_dir
 from ModifiedUi import ModifiedUi
 
 
-# TODO change download label when changing format
 class EasyYTDLEngine(YoutubeDL, Thread):
     """Class that runs the download engine."""
+
     def __init__(self, MainWindow):
         super().__init__()
 
@@ -18,46 +17,29 @@ class EasyYTDLEngine(YoutubeDL, Thread):
         self.download_path = ''
         self.input_url = []
         self.ydl_opts = None
-        self.old_video_id = None
+        self.video_id = None
+        self.video_info = None
         self._finished_downloads = 0
         self.ui_object = ModifiedUi(MainWindow)
-        self.ydl_opts_mp4()
         self.read_download_path()
 
     def check_if_empty_download_path(self, max_attempts=5):
         """Method that checks if path stored in location.json is empty"""
         if self.download_path == '':
-            attempt = 1
-            while attempt <= max_attempts:
-                self.download_not_found_msg_box(self.main_window)
-                if self.download_path != '':
-                    break
-                attempt += 1
-                if attempt > max_attempts:
-                    self.ui_object.too_many_tries_msg(self.main_window)
+            self.download_not_found_msg_box(self.main_window)
 
     def read_download_path(self):
         """Method that reads the path from location.json"""
-        user_profile_env = os.environ.get('USERPROFILE')
-        json_file = os.path.join(
-            user_profile_env, 'AppData', 'Local', 'Nupi',
-            'Easy YouTube Downloader', 'data', 'location.json'
-        )
         try:
-            with open(json_file, "r", encoding='UTF-8') as json_data:
-                data = json.load(json_data)
-                self.download_path = data['path']
+            with open(cons.LOCATION_JSON_PATH, "r", encoding='UTF-8') as data:
+                path = json.load(data)
+                self.download_path = path['path']
                 self.check_if_empty_download_path()
-                self.download_path = data['path']
+                self.download_path = path['path']
         except FileNotFoundError:
-            self.check_if_empty_download_path()
+            self.download_not_found_msg_box(self.main_window)
         finally:
-            if self.format_type == 'mp3':
-                self.ydl_opts_mp3()
-            elif self.format_type == 'mp4':
-                self.ydl_opts_mp4()
-            elif self.format_type == 'webm':
-                self.ydl_opts_webm()
+            self.check_format_type()
 
     def threaded_download(self):
         """Method that downloads the inputted urls"""
@@ -65,7 +47,7 @@ class EasyYTDLEngine(YoutubeDL, Thread):
         with YoutubeDL(self.ydl_opts) as ydl:
             ydl.download(self.input_url)
             self.ui_object.set_progressbar_value(0)
-        self.input_url = []
+        self.input_url.clear()
         self.ui_object.shrink_progress_bar()
         self.update_downloads_label()
 
@@ -85,8 +67,7 @@ class EasyYTDLEngine(YoutubeDL, Thread):
         """
         Method that sets the self.ydl_opts attribute into the mp3 format
         """
-        if self.format_type != 'mp3':
-            self.format_type = 'mp3'
+        self.format_type = 'mp3'
         self.ydl_opts = {
             'format': 'mp3/bestaudio/best',
             'progress_hooks': [self.update_progress],
@@ -102,8 +83,7 @@ class EasyYTDLEngine(YoutubeDL, Thread):
         """
         Method that sets the self.ydl_opts attribute into the mp4 format
         """
-        if self.format_type != 'mp4':
-            self.format_type = 'mp4'
+        self.format_type = 'mp4'
         self.ydl_opts = {
             'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best',
             'progress_hooks': [self.update_progress],
@@ -115,9 +95,9 @@ class EasyYTDLEngine(YoutubeDL, Thread):
         """
         Method that sets the self.ydl_opts attribute into the webm format
         """
-        if self.format_type != 'webm':
-            self.format_type = 'webm'
+        self.format_type = 'webm'
         self.ydl_opts = {
+            'format': "bestvideo[ext=webm]+bestaudio[ext=webm]/best",
             'outtmpl': f'{self.download_path}/WEBM/%(title)s.%(ext)s',
             'progress_hooks': [self.update_progress],
         }
@@ -142,11 +122,12 @@ class EasyYTDLEngine(YoutubeDL, Thread):
     def update_progress(self, video):
         """Method that updates the progressbar"""
         try:
-            descargado, total = video.get(
-                'downloaded_bytes', 0), video.get('total_bytes_estimate', 1)
-            porcentaje = int((descargado / total) * 100)
-            self.ui_object.set_progressbar_value(porcentaje)
-            self.video_id_checker(video)
+            self.video_info = video
+            downloaded = video.get('downloaded_bytes', 0)
+            total = video.get('total_bytes_estimate', 1)
+            percent = int((downloaded / total) * 100)
+            self.ui_object.set_progressbar_value(percent)
+            self.video_id_checker()
             self.update_downloads_label()
         except KeyError:
             pass
@@ -158,33 +139,39 @@ class EasyYTDLEngine(YoutubeDL, Thread):
             self.ui_object.set_no_active_downloads_label()
         else:
             self.ui_object.set_active_downloads_label(
-                self._finished_downloads, len(self.input_url))
+                self._finished_downloads, len(self.input_url)
+                )
 
     def select_download_path(self):
         """Method to choose a new download path"""
         path = self.ui_object.ask_for_directory()
         data = {'path': path}
-        data_dir = user_data_dir("Easy YouTube Downloader", "Nupi")
-        data_folder = os.path.join(data_dir, "data")
+        data_folder = os.path.join(cons.PROGRAM_FOLDER, "data")
         os.makedirs(data_folder, exist_ok=True)
         location_file_path = os.path.join(data_folder, "location.json")
         with open(location_file_path, "w", encoding="UTF-8") as file:
             json.dump(data, file, indent=4)
         self.read_download_path()
 
-    def video_id_checker(self, video):
-        """Method that checks if the new video id is different the old one"""
-        if 'info_dict' in video and 'id' in video['info_dict']:
-            video_id = video['info_dict']['id']
-            if video_id != self.old_video_id:
-                self.old_video_id = video_id
+    def video_id_checker(self):
+        t = Thread(target=self.threaded_video_id_checker)
+        t.start()
+
+    def threaded_video_id_checker(self):
+        try:
+            video_id = self.video_info['info_dict']['id']
+            if video_id != self.video_id:
+                self.video_id = video_id
                 self._finished_downloads += 1
+
+        except Exception as e:
+            print(f'Error when checking video_id: {e}')
+            pass
 
     def download_not_found_msg_box(self, main_window):
         """Method that calls a download not found msg box"""
-        if self.download_path == '':
-            self.ui_object.download_not_found_msg(main_window)
-            self.select_download_path()
+        self.ui_object.download_not_found_msg(main_window)
+        self.select_download_path()
 
     def open_format_window(self):
         """Method that opens the format window"""
@@ -192,3 +179,11 @@ class EasyYTDLEngine(YoutubeDL, Thread):
 
     def update_download_format_label(self):
         self.ui_object.set_selected_format_label(self.format_type)
+
+    def check_format_type(self):
+        if self.format_type == 'mp3':
+            self.ydl_opts_mp3()
+        elif self.format_type == 'mp4':
+            self.ydl_opts_mp4()
+        elif self.format_type == 'webm':
+            self.ydl_opts_webm()
