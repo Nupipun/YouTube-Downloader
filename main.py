@@ -14,7 +14,7 @@ if __name__ == '__main__':
             start_logging(path)
 
     # Start logging to file (disable for debug, enable for compiling program)
-    start_logging(cons.LOGS_LOG_PATH)
+    # start_logging(cons.LOGS_LOG_PATH)
 
     # Create main application and window object.
     app = QApplication(sys.argv)
@@ -39,5 +39,8 @@ if __name__ == '__main__':
     eng.ui_object.mp3_button_func(eng.ydl_opts_mp3)
     eng.ui_object.mp4_button_func(eng.ydl_opts_mp4)
     eng.ui_object.webm_button_func(eng.ydl_opts_webm)
+    eng.ui_object.playlist_button_func(eng.revert_convert_to_video)
+    eng.ui_object.video_button_func(eng.convert_playlist_to_video)
+    eng.ui_object.playlist_ui.ok_button.clicked.connect(eng.ok_button_clicked)
 
     sys.exit(app.exec_())

@@ -1,6 +1,8 @@
 from ui import Ui_MainWindow
 from formatWindow import Ui_formatWindow
+from video_or_playlist_window import Ui_playlist_or_video_window
 from PyQt5 import QtCore, QtWidgets
+import sys
 
 
 class ModifiedUi(Ui_MainWindow):
@@ -11,6 +13,9 @@ class ModifiedUi(Ui_MainWindow):
         self.format_window = QtWidgets.QMainWindow()
         self.format_ui = Ui_formatWindow()
         self.format_ui.setupUi(self.format_window)
+        self.playlist_window = QtWidgets.QMainWindow()
+        self.playlist_ui = Ui_playlist_or_video_window()
+        self.playlist_ui.setupUi(self.playlist_window)
 
     def __str__(self):
         return f'ModifiedUi({Ui_MainWindow})'
@@ -78,3 +83,27 @@ class ModifiedUi(Ui_MainWindow):
         self.active_format_label.setText(
             f"Active download format: {format}"
         )
+
+    def open_ui_playlist_window(self, MainWindow):
+        self.msg.about(
+            MainWindow,
+            "Info",
+            ("Playlist detected. "
+             "Choose whether you want a single video or the whole playlist.")
+        )
+        self.playlist_window.show()
+
+    def video_button_func(self, func):
+        self.playlist_ui.individual_video_button.clicked.connect(func)
+
+    def playlist_button_func(self, func):
+        self.playlist_ui.playlist_button.clicked.connect(func)
+
+
+if __name__ == '__main__':
+    app = QtWidgets.QApplication(sys.argv)
+    main_window = QtWidgets.QMainWindow()
+    ui = ModifiedUi(main_window)
+    main_window.show()
+    ui.open_ui_playlist_window(main_window)
+    sys.exit(app.exec_())

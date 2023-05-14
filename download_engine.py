@@ -19,6 +19,8 @@ class EasyYTDLEngine(YoutubeDL, Thread):
         self.ydl_opts = None
         self.video_id = None
         self.video_info = None
+        self.entry_text = None
+        self.final_entry_text = None
         self._finished_downloads = 0
         self.ui_object = ModifiedUi(MainWindow)
         self.read_download_path()
@@ -59,9 +61,10 @@ class EasyYTDLEngine(YoutubeDL, Thread):
     def append_new_links(self):
         """Method that inputs the current link in the entry."""
         list(self.input_url)
-        self.input_url.append(self.ui_object.get_entry_text())
-        self.ui_object.clear_entry_text()
-        self.update_downloads_label()
+        self.entry_text = self.ui_object.get_entry_text()
+        # Detect if appended link is a playlist or a video
+        if not self.check_if_playlist():
+            self.ok_button_clicked()
 
     def ydl_opts_mp3(self):
         """
@@ -154,10 +157,21 @@ class EasyYTDLEngine(YoutubeDL, Thread):
         self.read_download_path()
 
     def video_id_checker(self):
+        """
+        Method that opens self.threaded_video_id_checker
+        in a different thread so the program doesnt crash
+        """
         t = Thread(target=self.threaded_video_id_checker)
         t.start()
 
     def threaded_video_id_checker(self):
+        """
+        Method that checks the if the video_id changes to
+        sum 1 to the finished_downloads attribute to
+        update the downloads label since yt_dlp
+        does various tasks when downloading for example
+        an MP3 file
+        """
         try:
             video_id = self.video_info['info_dict']['id']
             if video_id != self.video_id:
@@ -178,12 +192,49 @@ class EasyYTDLEngine(YoutubeDL, Thread):
         self.ui_object.open_ui_format_window()
 
     def update_download_format_label(self):
+        """Method that updates the format label"""
         self.ui_object.set_selected_format_label(self.format_type)
 
     def check_format_type(self):
+        """Method that checks the format_type selected"""
         if self.format_type == 'mp3':
             self.ydl_opts_mp3()
         elif self.format_type == 'mp4':
             self.ydl_opts_mp4()
         elif self.format_type == 'webm':
             self.ydl_opts_webm()
+
+    def check_if_playlist(self):
+        """Method that checks if the inputted link has '&list' in it"""
+        if '&list' in self.entry_text:
+            self.revert_convert_to_video()
+            self.ui_object.open_ui_playlist_window(self.main_window)
+            return True
+        else:
+            self.revert_convert_to_video()
+            return False
+
+    def convert_playlist_to_video(self):
+        """
+        Method that updates self.final_entry_text
+        to the version without &list in it
+        """
+        self.final_entry_text = (
+            self.entry_text[:self.entry_text.index('&list')]
+            )
+
+    def revert_convert_to_video(self):
+        """Method that updates final_entry_text to the actual entry_text"""
+        self.final_entry_text = self.entry_text
+
+    def ok_button_clicked(self):
+        """
+        Method that gets called when the OK button
+        inside the playlist_window ui object
+        gets clicked. Also it gets called to just
+        continue the execution of self.append_new_links
+        """
+        self.input_url.append(self.final_entry_text)
+        self.ui_object.clear_entry_text()
+        self.update_downloads_label()
+        self.ui_object.playlist_window.close()
